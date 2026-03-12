@@ -29,11 +29,13 @@ __prithvi_gohome() {
 
 __prithvi_showfiles() {
   local target="${1// /}"
+  print ""
   if [[ -n "$target" ]]; then
-    command ls "$target"
+    command ls -1 "$target"
   else
-    command ls
+    command ls -1
   fi
+  print ""
 }
 
 __prithvi_open() {

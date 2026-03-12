@@ -3,6 +3,7 @@ import SwiftUI
 struct ContentView: View {
     @EnvironmentObject var appState: AppState
     @StateObject private var terminalManager = TerminalManager()
+    @State private var lastActiveDirectory: String?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -26,14 +27,20 @@ struct ContentView: View {
                 appState.renameTab(id: id, newTitle: title)
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: Notification.Name("prithvi.directoryChanged"))) { notification in
+            if let dir = notification.userInfo?["directory"] as? String {
+                // dir may be a file:// URL (from OSC 7) or a plain path
+                if dir.hasPrefix("file://"),
+                   let url = URL(string: dir) {
+                    lastActiveDirectory = url.path
+                } else {
+                    lastActiveDirectory = dir
+                }
+            }
+        }
         .onReceive(NotificationCenter.default.publisher(for: .newTab)) { notification in
             let title = notification.userInfo?["title"] as? String
-            appState.addTab(title: title)
-        }
-        .onChange(of: appState.tabs.count) { newCount in
-            // Clean up terminals for removed tabs
-            let tabIds = Set(appState.tabs.map(\.id))
-            // Terminal cleanup happens via TerminalManager
+            appState.addTab(title: title, startDirectory: lastActiveDirectory)
         }
     }
 }

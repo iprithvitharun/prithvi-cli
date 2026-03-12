@@ -16,21 +16,21 @@ struct TerminalContainerView: View {
         Group {
             switch splitMode {
             case .single:
-                TerminalPaneView(paneId: tab.id)
+                TerminalPaneView(paneId: tab.id, startDirectory: tab.startDirectory)
 
             case .horizontal:
                 HSplitView {
-                    TerminalPaneView(paneId: tab.id)
+                    TerminalPaneView(paneId: tab.id, startDirectory: tab.startDirectory)
                         .frame(minWidth: 200)
-                    TerminalPaneView(paneId: UUID())
+                    TerminalPaneView(paneId: UUID(), startDirectory: tab.startDirectory)
                         .frame(minWidth: 200)
                 }
 
             case .vertical:
                 VSplitView {
-                    TerminalPaneView(paneId: tab.id)
+                    TerminalPaneView(paneId: tab.id, startDirectory: tab.startDirectory)
                         .frame(minHeight: 100)
-                    TerminalPaneView(paneId: UUID())
+                    TerminalPaneView(paneId: UUID(), startDirectory: tab.startDirectory)
                         .frame(minHeight: 100)
                 }
             }

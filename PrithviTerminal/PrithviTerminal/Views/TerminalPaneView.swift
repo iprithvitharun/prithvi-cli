@@ -5,10 +5,11 @@ import SwiftTerm
 /// Uses TerminalManager to persist views across tab switches.
 struct TerminalPaneView: NSViewRepresentable {
     let paneId: UUID
+    var startDirectory: String? = nil
     @EnvironmentObject var terminalManager: TerminalManager
 
     func makeNSView(context: Context) -> PrithviTerminalView {
-        return terminalManager.terminalView(for: paneId)
+        return terminalManager.terminalView(for: paneId, startDirectory: startDirectory)
     }
 
     func updateNSView(_ nsView: PrithviTerminalView, context: Context) {}
@@ -18,6 +19,7 @@ struct TerminalPaneView: NSViewRepresentable {
 class PrithviTerminalView: NSView {
     private var terminal: LocalProcessTerminalView!
     private var zdotdirCleanup: String?  // temp dir path to clean up
+    private static var instanceCounter: Int = 0
 
     override var acceptsFirstResponder: Bool { true }
 
@@ -30,7 +32,7 @@ class PrithviTerminalView: NSView {
 
     /// Builds the shell environment with ZDOTDIR pointing to a temp dir
     /// that sources the user's real .zshrc + the Prithvi CLI plugin.
-    static func buildShellEnvironment() -> ([String], String) {
+    static func buildShellEnvironment(tabNumber: Int = 1, tabTitle: String = "", startDirectory: String? = nil) -> ([String], String) {
         // Find the plugin path — relative to the app binary or the repo
         let pluginPath = findPluginPath()
 
@@ -50,11 +52,12 @@ class PrithviTerminalView: NSView {
         """
         try? zprofile.write(toFile: tempDir + "/.zprofile", atomically: true, encoding: .utf8)
 
-        // .zshrc — source user's real .zshrc THEN our plugin, then cd to Documents
+        // .zshrc — source user's real .zshrc, cd to start dir, THEN our plugin (banner needs correct dir)
+        let cdTarget = startDirectory ?? "$HOME/Documents"
         let zshrc = """
         [[ -f "$HOME/.zshrc" ]] && source "$HOME/.zshrc"
+        cd "\(cdTarget)" 2>/dev/null
         source '\(pluginPath)'
-        cd "$HOME/Documents" 2>/dev/null
         """
         try? zshrc.write(toFile: tempDir + "/.zshrc", atomically: true, encoding: .utf8)
 
@@ -63,6 +66,8 @@ class PrithviTerminalView: NSView {
         env["ZDOTDIR"] = tempDir
         env["TERM"] = "xterm-256color"
         env["PRITHVI_TERMINAL"] = "1"
+        env["PRITHVI_TAB_NUMBER"] = "\(tabNumber)"
+        env["PRITHVI_TAB_TITLE"] = tabTitle
 
         let envArray = env.map { "\($0.key)=\($0.value)" }
         return (envArray, tempDir)
@@ -97,7 +102,7 @@ class PrithviTerminalView: NSView {
         return "/Users/ptharun/Documents/GitHub/prithvi-cli/prithvi.zsh"
     }
 
-    func setupTerminal() {
+    func setupTerminal(startDirectory: String? = nil) {
         terminal = LocalProcessTerminalView(frame: bounds)
         terminal.autoresizingMask = [.width, .height]
 
@@ -147,12 +152,15 @@ class PrithviTerminalView: NSView {
 
         // Start shell with Prithvi plugin auto-loaded via ZDOTDIR
         let shell = ProcessInfo.processInfo.environment["SHELL"] ?? "/bin/zsh"
-        let (env, cleanup) = Self.buildShellEnvironment()
+        Self.instanceCounter += 1
+        let tabNum = Self.instanceCounter
+        let tabTitle = "Untitled Term \(tabNum)"
+        let (env, cleanup) = Self.buildShellEnvironment(tabNumber: tabNum, tabTitle: tabTitle, startDirectory: startDirectory)
         self.zdotdirCleanup = cleanup
 
         let home = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let documents = home + "/Documents"
-        let startDir = FileManager.default.fileExists(atPath: documents) ? documents : home
+        let startDir = startDirectory ?? (FileManager.default.fileExists(atPath: documents) ? documents : home)
         terminal.startProcess(
             executable: shell,
             args: ["-i", "--login"],
@@ -191,7 +199,13 @@ extension PrithviTerminalView: LocalProcessTerminalViewDelegate {
     }
 
     func hostCurrentDirectoryUpdate(source: TerminalView, directory: String?) {
-        // Could update tab title to current directory
+        if let dir = directory {
+            NotificationCenter.default.post(
+                name: Notification.Name("prithvi.directoryChanged"),
+                object: nil,
+                userInfo: ["directory": dir]
+            )
+        }
     }
 
     func processTerminated(source: TerminalView, exitCode: Int32?) {

@@ -28,8 +28,8 @@ class AppState: ObservableObject {
             .store(in: &cancellables)
     }
 
-    func addTab(title: String? = nil) {
-        let tab = TerminalTab(title: title ?? nextTabTitle())
+    func addTab(title: String? = nil, startDirectory: String? = nil) {
+        let tab = TerminalTab(title: title ?? nextTabTitle(), startDirectory: startDirectory)
         tabs.append(tab)
         selectedTabId = tab.id
     }

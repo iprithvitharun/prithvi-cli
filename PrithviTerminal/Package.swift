@@ -14,7 +14,7 @@ let package = Package(
             name: "PrithviTerminal",
             dependencies: ["SwiftTerm"],
             path: "PrithviTerminal",
-            exclude: ["Info.plist", "PrithviTerminal.entitlements"]
+            exclude: ["Info.plist", "PrithviTerminal.entitlements", "AppIcon.icns", "Assets.xcassets"]
         ),
     ]
 )

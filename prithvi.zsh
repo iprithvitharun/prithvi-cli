@@ -7,6 +7,7 @@ PRITHVI_DIR="${0:A:h}"
 
 # ── Source all modules ──────────────────────────────────
 source "$PRITHVI_DIR/lib/colors.zsh"
+source "$PRITHVI_DIR/lib/banner.zsh"
 source "$PRITHVI_DIR/lib/prompt.zsh"
 source "$PRITHVI_DIR/commands/filesystem.zsh"
 source "$PRITHVI_DIR/commands/git.zsh"
@@ -18,50 +19,62 @@ source "$PRITHVI_DIR/commands/claude.zsh"
 # Overrides the Enter key handler. If the typed command matches
 # a custom command, we run it directly (in the current shell)
 # and reset the buffer. Otherwise, we let zsh execute normally.
+__prithvi_run() {
+  # Save to history, clear buffer, show new prompt, then run handler
+  print -s -- "$BUFFER"
+  BUFFER=""
+  zle accept-line
+  "$@"
+}
+
 __prithvi_accept_line() {
-  local cmd="$BUFFER"
+  local cmd="${BUFFER:l}"   # lowercase for matching
+  local raw="$BUFFER"       # original case for arguments
+
+  # Helper: extract argument after N characters from original input
+  local arg
 
   case "$cmd" in
-    "go to "*)     BUFFER=""; zle accept-line; __prithvi_goto "${cmd#go to }" ;;
-    "go back")     BUFFER=""; zle accept-line; __prithvi_goback ;;
-    "go home")     BUFFER=""; zle accept-line; __prithvi_gohome ;;
-    "show files"*) BUFFER=""; zle accept-line; __prithvi_showfiles "${cmd#show files}" ;;
-    "open "*)      BUFFER=""; zle accept-line; __prithvi_open "${cmd#open }" ;;
-    "new folder "*)BUFFER=""; zle accept-line; __prithvi_newfolder "${cmd#new folder }" ;;
-    "new file "*)  BUFFER=""; zle accept-line; __prithvi_newfile "${cmd#new file }" ;;
-    "where am i")  BUFFER=""; zle accept-line; __prithvi_whereami ;;
+    "go to "*)     arg="${raw:6}";  __prithvi_run __prithvi_goto "$arg" ;;
+    "go back")     __prithvi_run __prithvi_goback ;;
+    "go home")     __prithvi_run __prithvi_gohome ;;
+    "show files"*) arg="${raw:10}"; __prithvi_run __prithvi_showfiles "$arg" ;;
+    "open "*)      arg="${raw:5}";  __prithvi_run __prithvi_open "$arg" ;;
+    "new folder "*)arg="${raw:11}"; __prithvi_run __prithvi_newfolder "$arg" ;;
+    "new file "*)  arg="${raw:9}";  __prithvi_run __prithvi_newfile "$arg" ;;
+    "where am i")  __prithvi_run __prithvi_whereami ;;
 
-    "git status")     BUFFER=""; zle accept-line; __prithvi_git_status ;;
-    "git save")       BUFFER=""; zle accept-line; __prithvi_git_save ;;
-    "git push")       BUFFER=""; zle accept-line; __prithvi_git_push ;;
-    "git pull")       BUFFER=""; zle accept-line; __prithvi_git_pull ;;
-    "git branch")     BUFFER=""; zle accept-line; __prithvi_git_branch ;;
-    "git switch")     BUFFER=""; zle accept-line; __prithvi_git_switch ;;
-    "git new branch") BUFFER=""; zle accept-line; __prithvi_git_new_branch ;;
-    "git log")        BUFFER=""; zle accept-line; __prithvi_git_log ;;
-    "git undo")       BUFFER=""; zle accept-line; __prithvi_git_undo ;;
-    "git discard")    BUFFER=""; zle accept-line; __prithvi_git_discard ;;
-    "git stash")      BUFFER=""; zle accept-line; __prithvi_git_stash ;;
-    "git unstash")    BUFFER=""; zle accept-line; __prithvi_git_unstash ;;
-    "git diff")       BUFFER=""; zle accept-line; __prithvi_git_diff ;;
+    "git status")     __prithvi_run __prithvi_git_status ;;
+    "git save")       __prithvi_run __prithvi_git_save ;;
+    "git push")       __prithvi_run __prithvi_git_push ;;
+    "git pull")       __prithvi_run __prithvi_git_pull ;;
+    "git branch")     __prithvi_run __prithvi_git_branch ;;
+    "git switch")     __prithvi_run __prithvi_git_switch ;;
+    "git new branch") __prithvi_run __prithvi_git_new_branch ;;
+    "git log")        __prithvi_run __prithvi_git_log ;;
+    "git undo")       __prithvi_run __prithvi_git_undo ;;
+    "git discard")    __prithvi_run __prithvi_git_discard ;;
+    "git stash")      __prithvi_run __prithvi_git_stash ;;
+    "git unstash")    __prithvi_run __prithvi_git_unstash ;;
+    "git diff")       __prithvi_run __prithvi_git_diff ;;
 
-    "tab new"*)    BUFFER=""; zle accept-line; __prithvi_tab_new "${cmd#tab new}" ;;
-    "tab split"*)  BUFFER=""; zle accept-line; __prithvi_tab_split "${cmd#tab split}" ;;
-    "tab rename "*)BUFFER=""; zle accept-line; __prithvi_tab_rename "${cmd#tab rename }" ;;
-    "tab list")    BUFFER=""; zle accept-line; __prithvi_tab_list ;;
-    "tab close")   BUFFER=""; zle accept-line; __prithvi_tab_close ;;
+    "tab new"*)    arg="${raw:7}";  __prithvi_run __prithvi_tab_new "$arg" ;;
+    "tab split"*)  arg="${raw:9}";  __prithvi_run __prithvi_tab_split "$arg" ;;
+    "tab rename "*)arg="${raw:11}"; __prithvi_run __prithvi_tab_rename "$arg" ;;
+    "tab list")    __prithvi_run __prithvi_tab_list ;;
+    "tab close")   __prithvi_run __prithvi_tab_close ;;
 
-    "npm start")   BUFFER=""; zle accept-line; __prithvi_npm_start ;;
-    "npm dev")     BUFFER=""; zle accept-line; __prithvi_npm_dev ;;
-    "npm build")   BUFFER=""; zle accept-line; __prithvi_npm_build ;;
-    "npm test")    BUFFER=""; zle accept-line; __prithvi_npm_test ;;
-    "npm install"*)BUFFER=""; zle accept-line; __prithvi_npm_install "${cmd#npm install}" ;;
-    "npm remove "*)BUFFER=""; zle accept-line; __prithvi_npm_remove "${cmd#npm remove }" ;;
-    "npm run "*)   BUFFER=""; zle accept-line; __prithvi_npm_run "${cmd#npm run }" ;;
+    "npm start")   __prithvi_run __prithvi_npm_start ;;
+    "npm dev")     __prithvi_run __prithvi_npm_dev ;;
+    "npm build")   __prithvi_run __prithvi_npm_build ;;
+    "npm test")    __prithvi_run __prithvi_npm_test ;;
+    "npm install"*)arg="${raw:11}"; __prithvi_run __prithvi_npm_install "$arg" ;;
+    "npm remove "*)arg="${raw:11}"; __prithvi_run __prithvi_npm_remove "$arg" ;;
+    "npm run "*)   arg="${raw:8}";  __prithvi_run __prithvi_npm_run "$arg" ;;
 
-    "claude"*)     BUFFER=""; zle accept-line; __prithvi_claude "${cmd#claude}" ;;
+    "claude"*)     arg="${raw:6}";  __prithvi_run __prithvi_claude "$arg" ;;
 
-    "help"|"commands") BUFFER=""; zle accept-line; __prithvi_help ;;
+    "help"|"commands") __prithvi_run __prithvi_help ;;
 
     *)
       # Not a custom command — let zsh handle it normally
@@ -124,9 +137,5 @@ __prithvi_help() {
   print ""
 }
 
-# ── Welcome message (only in standalone mode, not inside Prithvi Terminal app) ──
-if [[ -z "$PRITHVI_TERMINAL" ]]; then
-  print ""
-  print "  ${PRITHVI_BOLD}${PRITHVI_CYAN}Prithvi CLI${PRITHVI_RESET} ${PRITHVI_DIM}v0.1.0${PRITHVI_RESET} — type ${PRITHVI_PINK}help${PRITHVI_RESET} for commands"
-  print ""
-fi
+# ── Welcome banner ────────────────────────────────────────────
+__prithvi_banner

@@ -3,11 +3,11 @@
 <plist version="1.0">
 <dict>
     <key>CFBundleName</key>
-    <string>p.sh</string>
+    <string>pmux.sh</string>
     <key>CFBundleDisplayName</key>
-    <string>p.sh</string>
+    <string>pmux.sh</string>
     <key>CFBundleIdentifier</key>
-    <string>com.prithvi.psh</string>
+    <string>com.pmux.pmuxsh</string>
     <key>CFBundleVersion</key>
     <string>1</string>
     <key>CFBundleShortVersionString</key>
@@ -15,7 +15,7 @@
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleExecutable</key>
-    <string>PrithviTerminal</string>
+    <string>PmuxTerminal</string>
     <key>LSMinimumSystemVersion</key>
     <string>13.0</string>
     <key>CFBundleIconFile</key>

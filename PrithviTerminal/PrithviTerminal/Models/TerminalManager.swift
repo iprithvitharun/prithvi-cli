@@ -4,14 +4,14 @@ import AppKit
 /// Keeps terminal view instances alive across tab switches.
 /// SwiftUI would destroy/recreate NSViews on tab change — this prevents that.
 class TerminalManager: ObservableObject {
-    private var terminals: [UUID: PrithviTerminalView] = [:]
+    private var terminals: [UUID: PmuxTerminalView] = [:]
     private var currentDirectories: [UUID: String] = [:]
 
-    func terminalView(for tabId: UUID, startDirectory: String? = nil) -> PrithviTerminalView {
+    func terminalView(for tabId: UUID, startDirectory: String? = nil) -> PmuxTerminalView {
         if let existing = terminals[tabId] {
             return existing
         }
-        let view = PrithviTerminalView()
+        let view = PmuxTerminalView()
         view.setupTerminal(startDirectory: startDirectory)
         terminals[tabId] = view
         return view

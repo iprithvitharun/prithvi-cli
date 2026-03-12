@@ -2,7 +2,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "PrithviTerminal",
+    name: "PmuxTerminal",
     platforms: [
         .macOS(.v13)
     ],
@@ -11,7 +11,7 @@ let package = Package(
     ],
     targets: [
         .executableTarget(
-            name: "PrithviTerminal",
+            name: "PmuxTerminal",
             dependencies: ["SwiftTerm"],
             path: "PrithviTerminal",
             exclude: ["Info.plist", "PrithviTerminal.entitlements", "AppIcon.icns", "Assets.xcassets"]

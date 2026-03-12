@@ -1,6 +1,6 @@
 import SwiftUI
 
-enum PrithviTheme {
+enum PmuxTheme {
     // ── Background ─────────────────────────────────────
     static let background = Color(hex: "1e1e2e")
     static let surface = Color(hex: "282840")

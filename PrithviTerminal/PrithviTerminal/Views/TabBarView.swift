@@ -28,7 +28,7 @@ struct TabBarView: View {
             Button(action: { appState.addTab() }) {
                 Image(systemName: "plus")
                     .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(PrithviTheme.textMuted)
+                    .foregroundColor(PmuxTheme.textMuted)
                     .frame(width: 28, height: 28)
                     .contentShape(Rectangle())
             }
@@ -36,7 +36,7 @@ struct TabBarView: View {
             .padding(.trailing, 12)
         }
         .frame(height: 38)
-        .background(PrithviTheme.tabBar)
+        .background(PmuxTheme.tabBar)
     }
 }
 
@@ -62,12 +62,12 @@ struct TabItemView: View {
                 })
                 .textFieldStyle(.plain)
                 .font(.system(size: 12, weight: .medium))
-                .foregroundColor(PrithviTheme.text)
+                .foregroundColor(PmuxTheme.text)
                 .frame(minWidth: 60)
             } else {
                 Text(tab.title)
                     .font(.system(size: 12, weight: isSelected ? .medium : .regular))
-                    .foregroundColor(isSelected ? PrithviTheme.text : PrithviTheme.textMuted)
+                    .foregroundColor(isSelected ? PmuxTheme.text : PmuxTheme.textMuted)
                     .lineLimit(1)
             }
 
@@ -75,7 +75,7 @@ struct TabItemView: View {
                 Button(action: onClose) {
                     Image(systemName: "xmark")
                         .font(.system(size: 8, weight: .bold))
-                        .foregroundColor(PrithviTheme.textMuted)
+                        .foregroundColor(PmuxTheme.textMuted)
                 }
                 .buttonStyle(.plain)
             }
@@ -84,7 +84,7 @@ struct TabItemView: View {
         .padding(.vertical, 8)
         .background(
             RoundedRectangle(cornerRadius: 6, style: .continuous)
-                .fill(isSelected ? PrithviTheme.tabActive : (isHovering ? PrithviTheme.surfaceHover : Color.clear))
+                .fill(isSelected ? PmuxTheme.tabActive : (isHovering ? PmuxTheme.surfaceHover : Color.clear))
         )
         .onHover { hovering in isHovering = hovering }
         .onTapGesture(count: 2) {

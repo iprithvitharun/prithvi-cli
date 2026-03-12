@@ -139,7 +139,7 @@ class GitCommands: CommandHandler {
         case "git stash":
             return .init(
                 handled: true,
-                replacement: "git stash push -m \"prithvi-stash-$(date +%H:%M:%S)\"",
+                replacement: "git stash push -m \"pmux-stash-$(date +%H:%M:%S)\"",
                 output: nil,
                 interactive: nil
             )

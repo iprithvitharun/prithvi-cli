@@ -1,8 +1,8 @@
 #!/usr/bin/env zsh
-# p.sh — Startup banners
+# pmux.sh — Startup banners
 
 # ── System info helpers ──────────────────────────────────────
-__prithvi_greeting() {
+__pmux_greeting() {
   local hour=$(date +%H)
   if   (( hour >= 5  && hour < 12 )); then print -n "Good morning"
   elif (( hour >= 12 && hour < 17 )); then print -n "Good afternoon"
@@ -11,7 +11,7 @@ __prithvi_greeting() {
   fi
 }
 
-__prithvi_uptime_short() {
+__pmux_uptime_short() {
   local raw=$(uptime 2>/dev/null)
   # Match "up X days, H:MM" or "up H:MM" or "up X days"
   if [[ "$raw" =~ "up ([0-9]+) days?,[ ]*([0-9]+):([0-9]+)" ]]; then
@@ -31,7 +31,7 @@ __prithvi_uptime_short() {
   fi
 }
 
-__prithvi_memory_short() {
+__pmux_memory_short() {
   local mem_total
   mem_total=$(sysctl -n hw.memsize 2>/dev/null)
   if [[ -n "$mem_total" ]]; then
@@ -56,7 +56,7 @@ __prithvi_memory_short() {
 }
 
 # ── Full gradient wave banner (startup / first tab) ──────────
-__prithvi_banner_full() {
+__pmux_banner_full() {
   local c1=$'\033[38;5;117m'  # cyan
   local c2=$'\033[38;5;153m'  # light blue
   local c3=$'\033[38;5;183m'  # lavender
@@ -69,22 +69,22 @@ __prithvi_banner_full() {
   local cg=$'\033[38;5;114m'  # green
 
   # Gather info
-  local greeting=$(__prithvi_greeting)
-  local uptime=$(__prithvi_uptime_short)
-  local memory=$(__prithvi_memory_short)
+  local greeting=$(__pmux_greeting)
+  local uptime=$(__pmux_uptime_short)
+  local memory=$(__pmux_memory_short)
   local git_user=$(gh auth status 2>&1 | grep -B1 "Active account: true" | head -1 | grep -o 'account [^ ]*' | cut -d' ' -f2)
 
   print ""
   print "    ${c1}░░${c2}▒▒${c3}▓▓${b}${c4}████████████████████████${r}${c3}▓▓${c2}▒▒${c1}░░${r}"
-  print "    ${c2}▒▒${c3}▓▓${c4}██${r}  ${b}${c1}p ${c2}. ${c3}s ${c4}h${r}  ${c4}██${c3}▓▓${c2}▒▒${r}"
+  print "    ${c2}▒▒${c3}▓▓${c4}██${r}  ${b}${c1}p ${c2}m ${c3}u ${c4}x ${c1}. ${c2}s ${c3}h${r}  ${c4}██${c3}▓▓${c2}▒▒${r}"
   print "    ${c1}░░${c2}▒▒${c3}▓▓${b}${c4}████████████████████████${r}${c3}▓▓${c2}▒▒${c1}░░${r}"
   print ""
-  print "    ${b}${c1}${greeting}${r}  ${d}p.sh v0.1.0${r}  ${c2}⏱${r} ${c3}${uptime}${r}  ${c2}⬡${r} ${cy}${memory}${r}${git_user:+  ${cg}⌘${r} ${cg}${git_user}${r}}"
+  print "    ${b}${c1}${greeting}${r}  ${d}pmux.sh v0.1.0${r}  ${c2}⏱${r} ${c3}${uptime}${r}  ${c2}⬡${r} ${cy}${memory}${r}${git_user:+  ${cg}⌘${r} ${cg}${git_user}${r}}"
   print ""
 }
 
 # ── Compact banner (new tabs) ────────────────────────────────
-__prithvi_banner_compact() {
+__pmux_banner_compact() {
   local c1=$'\033[38;5;117m'  # cyan
   local c2=$'\033[38;5;153m'  # light blue
   local c3=$'\033[38;5;183m'  # lavender
@@ -95,20 +95,20 @@ __prithvi_banner_compact() {
   local b=$'\033[1m'          # bold
   local r=$'\033[0m'          # reset
 
-  local uptime=$(__prithvi_uptime_short)
-  local memory=$(__prithvi_memory_short)
+  local uptime=$(__pmux_uptime_short)
+  local memory=$(__pmux_memory_short)
   local git_user=$(gh auth status 2>&1 | grep -B1 "Active account: true" | head -1 | grep -o 'account [^ ]*' | cut -d' ' -f2)
 
   print ""
-  print "    ${c1}▓${c3}▒${c4}░${r} ${b}${c1}p.sh${r}  ${c2}⏱${r} ${c3}${uptime}${r}  ${c2}⬡${r} ${cy}${memory}${r}${git_user:+  ${cg}⌘${r} ${cg}${git_user}${r}} ${c4}░${c3}▒${c1}▓${r}"
+  print "    ${c1}▓${c3}▒${c4}░${r} ${b}${c1}pmux.sh${r}  ${c2}⏱${r} ${c3}${uptime}${r}  ${c2}⬡${r} ${cy}${memory}${r}${git_user:+  ${cg}⌘${r} ${cg}${git_user}${r}} ${c4}░${c3}▒${c1}▓${r}"
   print ""
 }
 
 # ── Show the right banner based on context ───────────────────
-__prithvi_banner() {
-  if [[ "${PRITHVI_TAB_NUMBER:-1}" -gt 1 ]]; then
-    __prithvi_banner_compact
+__pmux_banner() {
+  if [[ "${PMUX_TAB_NUMBER:-1}" -gt 1 ]]; then
+    __pmux_banner_compact
   else
-    __prithvi_banner_full
+    __pmux_banner_full
   fi
 }

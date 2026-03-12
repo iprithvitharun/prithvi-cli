@@ -1,16 +1,16 @@
 #!/bin/bash
-# Build p.sh as a macOS .app bundle
+# Build pmux.sh as a macOS .app bundle
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 BUILD_DIR="$SCRIPT_DIR/.build/release"
-APP_DIR="$SCRIPT_DIR/build/p.sh.app"
+APP_DIR="$SCRIPT_DIR/build/pmux.sh.app"
 CONTENTS="$APP_DIR/Contents"
 MACOS="$CONTENTS/MacOS"
 RESOURCES="$CONTENTS/Resources"
 
 echo ""
-echo "  Building p.sh..."
+echo "  Building pmux.sh..."
 echo ""
 
 # Build release binary
@@ -27,7 +27,7 @@ mkdir -p "$MACOS"
 mkdir -p "$RESOURCES"
 
 # Copy binary
-cp "$BUILD_DIR/PrithviTerminal" "$MACOS/PrithviTerminal"
+cp "$BUILD_DIR/PmuxTerminal" "$MACOS/PmuxTerminal"
 
 # Copy Info.plist
 cp "$SCRIPT_DIR/PrithviTerminal/Info.plist" "$CONTENTS/Info.plist"

@@ -1,23 +1,23 @@
 #!/usr/bin/env zsh
 # Clean, minimal prompt: directory + git branch
 
-__prithvi_git_prompt() {
+__pmux_git_prompt() {
   local branch
   branch=$(command git symbolic-ref --short HEAD 2>/dev/null) || return
-  echo " %{$PRITHVI_PINK%}$branch%{$PRITHVI_RESET%}"
+  echo " %{$PMUX_PINK%}$branch%{$PMUX_RESET%}"
 }
 
 setopt PROMPT_SUBST
-PROMPT=' %{$PRITHVI_CYAN%}%~%{$PRITHVI_RESET%}$(__prithvi_git_prompt) %{$PRITHVI_PINK%}❯%{$PRITHVI_RESET%} '
+PROMPT=' %{$PMUX_CYAN%}%~%{$PMUX_RESET%}$(__pmux_git_prompt) %{$PMUX_PINK%}❯%{$PMUX_RESET%} '
 
 # ── Report current directory to terminal (OSC 7) ────────────
 # Lets the terminal app track the working directory for new tab inheritance
-__prithvi_report_cwd() {
+__pmux_report_cwd() {
   printf '\033]7;file://%s%s\033\\' "$HOST" "$PWD"
 }
 autoload -Uz add-zsh-hook
-add-zsh-hook chpwd __prithvi_report_cwd
-__prithvi_report_cwd  # report initial directory
+add-zsh-hook chpwd __pmux_report_cwd
+__pmux_report_cwd  # report initial directory
 
 # ── History ──────────────────────────────────────────────────
 HISTFILE="${HOME}/.zsh_history"

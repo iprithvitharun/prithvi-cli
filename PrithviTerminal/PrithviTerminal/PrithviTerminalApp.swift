@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct PrithviTerminalApp: App {
+struct PmuxTerminalApp: App {
     @StateObject private var appState = AppState()
 
     var body: some Scene {
@@ -40,8 +40,8 @@ struct PrithviTerminalApp: App {
 }
 
 extension Notification.Name {
-    static let newTab = Notification.Name("prithvi.newTab")
-    static let closeTab = Notification.Name("prithvi.closeTab")
-    static let splitRight = Notification.Name("prithvi.splitRight")
-    static let splitDown = Notification.Name("prithvi.splitDown")
+    static let newTab = Notification.Name("pmux.newTab")
+    static let closeTab = Notification.Name("pmux.closeTab")
+    static let splitRight = Notification.Name("pmux.splitRight")
+    static let splitDown = Notification.Name("pmux.splitDown")
 }

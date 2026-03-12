@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
-# Prithvi CLI Installer
+# pmux.sh Installer
 set -e
 
-PRITHVI_DIR="$(cd "$(dirname "$0")" && pwd)"
+PMUX_DIR="$(cd "$(dirname "$0")" && pwd)"
 SHELL_RC="$HOME/.zshrc"
 
 echo ""
 echo "  ╔══════════════════════════════════════════╗"
-echo "  ║      Prithvi CLI — Installer             ║"
+echo "  ║      pmux.sh — Installer             ║"
 echo "  ╚══════════════════════════════════════════╝"
 echo ""
 
 # Check if already installed
-if grep -q "prithvi-cli/prithvi.zsh" "$SHELL_RC" 2>/dev/null; then
-  echo "  ✓ Prithvi CLI is already in your .zshrc"
+if grep -q "prithvi-cli/pmux.zsh" "$SHELL_RC" 2>/dev/null; then
+  echo "  ✓ pmux.sh is already in your .zshrc"
   echo "  → To reinstall, remove the line from $SHELL_RC and run again"
   echo ""
   exit 0
@@ -21,8 +21,8 @@ fi
 
 # Add source line to .zshrc
 echo "" >> "$SHELL_RC"
-echo "# Prithvi CLI" >> "$SHELL_RC"
-echo "source \"$PRITHVI_DIR/prithvi.zsh\"" >> "$SHELL_RC"
+echo "# pmux.sh" >> "$SHELL_RC"
+echo "source \"$PMUX_DIR/pmux.zsh\"" >> "$SHELL_RC"
 
 echo "  ✓ Added to $SHELL_RC"
 echo ""

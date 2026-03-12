@@ -8,15 +8,15 @@ struct TerminalPaneView: NSViewRepresentable {
     var startDirectory: String? = nil
     @EnvironmentObject var terminalManager: TerminalManager
 
-    func makeNSView(context: Context) -> PrithviTerminalView {
+    func makeNSView(context: Context) -> PmuxTerminalView {
         return terminalManager.terminalView(for: paneId, startDirectory: startDirectory)
     }
 
-    func updateNSView(_ nsView: PrithviTerminalView, context: Context) {}
+    func updateNSView(_ nsView: PmuxTerminalView, context: Context) {}
 }
 
 /// Custom terminal view that wraps LocalProcessTerminalView.
-class PrithviTerminalView: NSView {
+class PmuxTerminalView: NSView {
     private var terminal: LocalProcessTerminalView!
     private var zdotdirCleanup: String?  // temp dir path to clean up
     private static var instanceCounter: Int = 0
@@ -31,13 +31,13 @@ class PrithviTerminalView: NSView {
     }
 
     /// Builds the shell environment with ZDOTDIR pointing to a temp dir
-    /// that sources the user's real .zshrc + the Prithvi CLI plugin.
+    /// that sources the user's real .zshrc + the pmux.sh plugin.
     static func buildShellEnvironment(tabNumber: Int = 1, tabTitle: String = "", startDirectory: String? = nil) -> ([String], String) {
         // Find the plugin path — relative to the app binary or the repo
         let pluginPath = findPluginPath()
 
         // Create temp ZDOTDIR
-        let tempDir = NSTemporaryDirectory() + "prithvi-shell-\(ProcessInfo.processInfo.processIdentifier)-\(UUID().uuidString.prefix(8))"
+        let tempDir = NSTemporaryDirectory() + "pmux-shell-\(ProcessInfo.processInfo.processIdentifier)-\(UUID().uuidString.prefix(8))"
         try? FileManager.default.createDirectory(atPath: tempDir, withIntermediateDirectories: true)
 
         // .zshenv — source user's real .zshenv
@@ -65,30 +65,30 @@ class PrithviTerminalView: NSView {
         var env = ProcessInfo.processInfo.environment
         env["ZDOTDIR"] = tempDir
         env["TERM"] = "xterm-256color"
-        env["PRITHVI_TERMINAL"] = "1"
-        env["PRITHVI_TAB_NUMBER"] = "\(tabNumber)"
-        env["PRITHVI_TAB_TITLE"] = tabTitle
+        env["PMUX_TERMINAL"] = "1"
+        env["PMUX_TAB_NUMBER"] = "\(tabNumber)"
+        env["PMUX_TAB_TITLE"] = tabTitle
 
         let envArray = env.map { "\($0.key)=\($0.value)" }
         return (envArray, tempDir)
     }
 
-    /// Locate the prithvi.zsh plugin file
+    /// Locate the pmux.zsh plugin file
     static func findPluginPath() -> String {
         // Check relative to the binary (for development builds)
         let bundlePath = Bundle.main.bundlePath
 
         // Check in the repo structure (development)
-        // The app is at PrithviTerminal/build/Prithvi Terminal.app or PrithviTerminal/.build/debug/
+        // The app is at PmuxTerminal/build/pmux.sh.app or PmuxTerminal/.build/debug/
         let possiblePaths = [
             // Repo root (relative to .build/debug/)
-            bundlePath + "/../../../../prithvi.zsh",
-            // Repo root (relative to build/Prithvi Terminal.app/Contents/MacOS/)
-            bundlePath + "/../../../../../prithvi.zsh",
+            bundlePath + "/../../../../pmux.zsh",
+            // Repo root (relative to build/pmux.sh.app/Contents/MacOS/)
+            bundlePath + "/../../../../../pmux.zsh",
             // Inside app bundle Resources
-            Bundle.main.path(forResource: "prithvi", ofType: "zsh") ?? "",
+            Bundle.main.path(forResource: "pmux", ofType: "zsh") ?? "",
             // Absolute fallback — repo path
-            "/Users/ptharun/Documents/GitHub/prithvi-cli/prithvi.zsh",
+            "/Users/ptharun/Documents/GitHub/prithvi-cli/pmux.zsh",
         ]
 
         for path in possiblePaths {
@@ -99,7 +99,7 @@ class PrithviTerminalView: NSView {
         }
 
         // Final fallback
-        return "/Users/ptharun/Documents/GitHub/prithvi-cli/prithvi.zsh"
+        return "/Users/ptharun/Documents/GitHub/prithvi-cli/pmux.zsh"
     }
 
     func setupTerminal(startDirectory: String? = nil) {
@@ -150,7 +150,7 @@ class PrithviTerminalView: NSView {
 
         addSubview(terminal)
 
-        // Start shell with Prithvi plugin auto-loaded via ZDOTDIR
+        // Start shell with pmux.sh plugin auto-loaded via ZDOTDIR
         let shell = ProcessInfo.processInfo.environment["SHELL"] ?? "/bin/zsh"
         Self.instanceCounter += 1
         let tabNum = Self.instanceCounter
@@ -183,7 +183,7 @@ class PrithviTerminalView: NSView {
 }
 
 // MARK: - LocalProcessTerminalViewDelegate
-extension PrithviTerminalView: LocalProcessTerminalViewDelegate {
+extension PmuxTerminalView: LocalProcessTerminalViewDelegate {
     func sizeChanged(source: LocalProcessTerminalView, newCols: Int, newRows: Int) {
         // Handled by SwiftTerm
     }
@@ -191,7 +191,7 @@ extension PrithviTerminalView: LocalProcessTerminalViewDelegate {
     func setTerminalTitle(source: LocalProcessTerminalView, title: String) {
         DispatchQueue.main.async {
             NotificationCenter.default.post(
-                name: Notification.Name("prithvi.renameTab"),
+                name: Notification.Name("pmux.renameTab"),
                 object: nil,
                 userInfo: ["title": title]
             )
@@ -201,7 +201,7 @@ extension PrithviTerminalView: LocalProcessTerminalViewDelegate {
     func hostCurrentDirectoryUpdate(source: TerminalView, directory: String?) {
         if let dir = directory {
             NotificationCenter.default.post(
-                name: Notification.Name("prithvi.directoryChanged"),
+                name: Notification.Name("pmux.directoryChanged"),
                 object: nil,
                 userInfo: ["directory": dir]
             )

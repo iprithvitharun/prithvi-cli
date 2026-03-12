@@ -7,14 +7,14 @@
 # 3. AppleScript for macOS window/tab management
 
 # ── Set tab title via OSC escape sequence ───────────────
-__prithvi_set_tab_title() {
+__pmux_set_tab_title() {
   local title="$1"
   # OSC 0 sets both window and tab title
   print -n "\033]0;${title}\007"
 }
 
 # ── Tab: new ────────────────────────────────────────────
-__prithvi_tab_new() {
+__pmux_tab_new() {
   local name="${1// /}"
 
   if command -v ghostty &>/dev/null; then
@@ -33,21 +33,21 @@ __prithvi_tab_new() {
   fi
 
   # Auto-increment tab counter
-  : ${__prithvi_tab_counter:=0}
-  (( __prithvi_tab_counter++ ))
+  : ${__pmux_tab_counter:=0}
+  (( __pmux_tab_counter++ ))
 
   if [[ -z "$name" ]]; then
-    name="Untitled Term $__prithvi_tab_counter"
+    name="Untitled Term $__pmux_tab_counter"
   fi
 
   # Small delay to let the new tab open
   sleep 0.3
-  __prithvi_set_tab_title "$name"
-  __prithvi_success "New tab: ${PRITHVI_CYAN}$name${PRITHVI_RESET}"
+  __pmux_set_tab_title "$name"
+  __pmux_success "New tab: ${PMUX_CYAN}$name${PMUX_RESET}"
 }
 
 # ── Tab: split ──────────────────────────────────────────
-__prithvi_tab_split() {
+__pmux_tab_split() {
   local direction="${1// /}"
   direction="${direction:-right}"
 
@@ -65,7 +65,7 @@ __prithvi_tab_split() {
           end tell
         ' 2>/dev/null
       fi
-      __prithvi_success "Split pane → right"
+      __pmux_success "Split pane → right"
       ;;
     down|d)
       if command -v ghostty &>/dev/null; then
@@ -80,30 +80,30 @@ __prithvi_tab_split() {
           end tell
         ' 2>/dev/null
       fi
-      __prithvi_success "Split pane ↓ down"
+      __pmux_success "Split pane ↓ down"
       ;;
     *)
-      __prithvi_error "Direction must be ${PRITHVI_PINK}right${PRITHVI_RESET} or ${PRITHVI_PINK}down${PRITHVI_RESET}"
+      __pmux_error "Direction must be ${PMUX_PINK}right${PMUX_RESET} or ${PMUX_PINK}down${PMUX_RESET}"
       return 1
       ;;
   esac
 }
 
 # ── Tab: rename ─────────────────────────────────────────
-__prithvi_tab_rename() {
+__pmux_tab_rename() {
   local name="$1"
   if [[ -z "$name" ]]; then
-    __prithvi_ask "Tab name?"
+    __pmux_ask "Tab name?"
     read name
   fi
 
-  __prithvi_set_tab_title "$name"
-  __prithvi_success "Tab renamed to ${PRITHVI_CYAN}$name${PRITHVI_RESET}"
+  __pmux_set_tab_title "$name"
+  __pmux_success "Tab renamed to ${PMUX_CYAN}$name${PMUX_RESET}"
 }
 
 # ── Tab: list ───────────────────────────────────────────
-__prithvi_tab_list() {
-  __prithvi_info "Open tabs in Ghostty:"
+__pmux_tab_list() {
+  __pmux_info "Open tabs in Ghostty:"
   osascript -e '
     tell application "Ghostty"
       tell application "System Events"
@@ -117,12 +117,12 @@ __prithvi_tab_list() {
       end tell
     end tell
   ' 2>&1 | while IFS= read -r line; do
-    print "  ${PRITHVI_GRAY}○${PRITHVI_RESET} $line"
+    print "  ${PMUX_GRAY}○${PMUX_RESET} $line"
   done
 }
 
 # ── Tab: close ──────────────────────────────────────────
-__prithvi_tab_close() {
+__pmux_tab_close() {
   osascript -e '
     tell application "Ghostty"
       activate
@@ -131,5 +131,5 @@ __prithvi_tab_close() {
       end tell
     end tell
   ' 2>/dev/null
-  __prithvi_success "Tab closed"
+  __pmux_success "Tab closed"
 }

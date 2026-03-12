@@ -6,7 +6,7 @@ class HelpCommand: CommandHandler {
 
         let helpText = """
 
-          \u{001B}[1m\u{001B}[38;5;117mp.sh\u{001B}[0m — Human-friendly commands
+          \u{001B}[1m\u{001B}[38;5;117mpmux.sh\u{001B}[0m — Human-friendly commands
 
           \u{001B}[2m────────────────────────────────────────────\u{001B}[0m
 

@@ -1,10 +1,10 @@
 #!/usr/bin/env zsh
-# Interactive arrow-key picker for Prithvi CLI
+# Interactive arrow-key picker for pmux.sh
 
-# Usage: __prithvi_picker item1 item2 item3 ...
+# Usage: __pmux_picker item1 item2 item3 ...
 # Returns: selected item via stdout, empty if cancelled
 # All UI rendering goes to /dev/tty so it works inside $()
-__prithvi_picker() {
+__pmux_picker() {
   local -a items=("$@")
   local count=${#items}
   local selected=1
@@ -21,7 +21,7 @@ __prithvi_picker() {
   local clr=$'\033[2K'                # clear line
 
   # Render the list to /dev/tty
-  __prithvi_picker_render() {
+  __pmux_picker_render() {
     local i
     for (( i = 1; i <= count; i++ )); do
       local item="${items[$i]}"
@@ -40,7 +40,7 @@ __prithvi_picker() {
 
   # Initial render
   print "" > /dev/tty
-  __prithvi_picker_render
+  __pmux_picker_render
 
   # Hint line
   print "\r${clr}  ${dim}↑↓ navigate  ↵ select  esc cancel${r}" > /dev/tty
@@ -82,7 +82,7 @@ __prithvi_picker() {
 
     # Redraw: move cursor up and overwrite
     printf '\033[%dA' "$total_lines" > /dev/tty
-    __prithvi_picker_render
+    __pmux_picker_render
     print "\r${clr}  ${dim}↑↓ navigate  ↵ select  esc cancel${r}" > /dev/tty
   done
 }

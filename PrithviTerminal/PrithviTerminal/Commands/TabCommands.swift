@@ -39,7 +39,7 @@ class TabCommands: CommandHandler {
             let name = String(input.dropFirst(11)).trimmingCharacters(in: .whitespaces)
             DispatchQueue.main.async {
                 NotificationCenter.default.post(
-                    name: Notification.Name("prithvi.renameTab"),
+                    name: Notification.Name("pmux.renameTab"),
                     object: nil,
                     userInfo: ["title": name]
                 )

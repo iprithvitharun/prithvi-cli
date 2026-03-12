@@ -19,15 +19,15 @@ struct ContentView: View {
                 }
             }
         }
-        .background(PrithviTheme.background)
+        .background(PmuxTheme.background)
         .environmentObject(terminalManager)
-        .onReceive(NotificationCenter.default.publisher(for: Notification.Name("prithvi.renameTab"))) { notification in
+        .onReceive(NotificationCenter.default.publisher(for: Notification.Name("pmux.renameTab"))) { notification in
             if let title = notification.userInfo?["title"] as? String,
                let id = appState.selectedTabId {
                 appState.renameTab(id: id, newTitle: title)
             }
         }
-        .onReceive(NotificationCenter.default.publisher(for: Notification.Name("prithvi.directoryChanged"))) { notification in
+        .onReceive(NotificationCenter.default.publisher(for: Notification.Name("pmux.directoryChanged"))) { notification in
             if let dir = notification.userInfo?["directory"] as? String {
                 // dir may be a file:// URL (from OSC 7) or a plain path
                 if dir.hasPrefix("file://"),

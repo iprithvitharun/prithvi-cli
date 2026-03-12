@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>pmux.sh — Your terminal, but friendly</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0A0A0A;
+      color: #F0EDE6;
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 48px 32px;
+    }
+
+    /* ── Nav ── */
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 64px;
+    }
+    .nav-logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 20px;
+      color: #F0EDE6;
+      text-decoration: none;
+    }
+    .nav-logo span { color: #FF6B35; }
+    .nav-links { display: flex; gap: 32px; }
+    .nav-links a {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: #6B6762;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: #F0EDE6; }
+
+    /* ── Hero ── */
+    .hero {
+      text-align: center;
+      padding: 40px 0 72px;
+    }
+    .hero-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 500;
+      color: #2DD4BF;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 28px;
+    }
+    .hero h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 76px;
+      font-weight: 700;
+      line-height: 1.02;
+      letter-spacing: -0.035em;
+      margin-bottom: 24px;
+    }
+    .hero p {
+      font-size: 18px;
+      color: #8A8680;
+      line-height: 1.6;
+      max-width: 460px;
+      margin: 0 auto 40px;
+    }
+
+    /* ── Install box ── */
+    .install-box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      background: #151515;
+      border: 1px solid #2A2A2A;
+      border-radius: 12px;
+      padding: 16px 28px;
+      max-width: 520px;
+      margin: 0 auto;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      position: relative;
+    }
+    .install-box:hover {
+      border-color: #FF6B35;
+      background: #1A1410;
+    }
+    .install-box code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      font-weight: 500;
+      color: #F0EDE6;
+    }
+    .install-box code span { color: #FF6B35; }
+    .install-box .copy-hint {
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      color: #6B6762;
+      background: #1E1E1E;
+      padding: 4px 10px;
+      border-radius: 6px;
+      transition: color 0.2s;
+    }
+    .install-box:hover .copy-hint { color: #FF6B35; }
+    .install-box .copied-msg {
+      display: none;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: #2DD4BF;
+    }
+
+    /* ── Bento Grid ── */
+    .bento {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 72px;
+    }
+    .bento-card {
+      background: #131313;
+      border: 1px solid #1E1E1E;
+      border-radius: 16px;
+      padding: 32px;
+      overflow: hidden;
+      transition: border-color 0.25s, transform 0.25s;
+    }
+    .bento-card:hover {
+      border-color: #2A2A2A;
+      transform: translateY(-2px);
+    }
+    .bento-card.wide { grid-column: span 2; }
+    .bento-card.tall { grid-row: span 2; }
+    .bento-card.full { grid-column: span 3; }
+
+    .card-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      color: #6B6762;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .card-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 12px;
+    }
+    .card-desc {
+      font-size: 14px;
+      color: #8A8680;
+      line-height: 1.6;
+    }
+
+    /* ── Terminal mock ── */
+    .terminal {
+      background: #0A0A0A;
+      border: 1px solid #1E1E1E;
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      line-height: 2;
+    }
+    .terminal .prompt { color: #FF6B35; }
+    .terminal .cmd { color: #F0EDE6; }
+    .terminal .output { color: #6B6762; }
+    .terminal .success { color: #2DD4BF; }
+    .terminal .pink { color: #E879A8; }
+
+    /* ── Command pills ── */
+    .cmd-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 20px;
+    }
+    .cmd-pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 500;
+      color: #8A8680;
+      background: #1A1A1A;
+      border: 1px solid #222;
+      border-radius: 8px;
+      padding: 6px 14px;
+      white-space: nowrap;
+    }
+
+    /* ── Accent cards ── */
+    .card-accent-orange { border-left: 3px solid #FF6B35; }
+    .card-accent-teal { border-left: 3px solid #2DD4BF; }
+    .card-accent-pink { border-left: 3px solid #E879A8; }
+
+    .highlight-orange { color: #FF6B35; }
+    .highlight-teal { color: #2DD4BF; }
+    .highlight-pink { color: #E879A8; }
+
+    /* ── Stats row ── */
+    .stat-number {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 48px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 14px;
+      color: #6B6762;
+      margin-top: 8px;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      text-align: center;
+      padding: 64px 0 32px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: #3A3835;
+    }
+    .footer a { color: #6B6762; text-decoration: none; }
+    .footer a:hover { color: #F0EDE6; }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 44px; }
+      .bento { grid-template-columns: 1fr; }
+      .bento-card.wide, .bento-card.full { grid-column: span 1; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <!-- Nav -->
+    <nav class="nav">
+      <a href="#" class="nav-logo">pmux<span>.sh</span></a>
+      <div class="nav-links">
+        <a href="https://github.com/iprithvitharun/homebrew-pmux">github</a>
+        <a href="#commands">commands</a>
+        <a href="#install">install</a>
+      </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero" id="install">
+      <div class="hero-badge">v0.1.0 — now on homebrew</div>
+      <h1>Your terminal,<br>but friendly.</h1>
+      <p>Stop memorizing flags. Start typing what you mean. pmux.sh turns your Ghostty terminal into something that actually listens.</p>
+
+      <div class="install-box" onclick="copyInstall(this)">
+        <code><span>$</span> brew install iprithvitharun/pmux/pmux</code>
+        <span class="copy-hint">click to copy</span>
+        <span class="copied-msg">copied!</span>
+      </div>
+    </section>
+
+    <!-- Bento Grid -->
+    <section class="bento" id="commands">
+
+      <!-- Card 1: Talk human — wide -->
+      <div class="bento-card wide">
+        <div class="card-label">Philosophy</div>
+        <div class="card-title">Talk to your terminal<br>like it's a <span class="highlight-orange">person</span>.</div>
+        <div class="card-desc">No man pages. No StackOverflow tabs. Just type what you want in plain English and pmux figures out the rest.</div>
+        <div class="terminal">
+          <span class="prompt">~</span> <span class="cmd">go to projects</span><br>
+          <span class="success">  &#10003;</span> <span class="output">Now in</span> <span class="highlight-teal">projects</span><br>
+          <span class="prompt">~/projects</span> <span class="cmd">show files</span><br>
+          <span class="output">  &#8594; 4 items &middot; 2 folders, 2 files</span>
+        </div>
+      </div>
+
+      <!-- Card 2: Stats -->
+      <div class="bento-card" style="display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <div class="card-label">Tiny footprint</div>
+          <div class="stat-number highlight-teal">925</div>
+          <div class="stat-label">lines of zsh. That's it.<br>No node. No python. No rust.<br>Just vibes and shell scripts.</div>
+        </div>
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #3A3835; margin-top: 24px;">~0ms startup overhead</div>
+      </div>
+
+      <!-- Card 3: Git -->
+      <div class="bento-card card-accent-pink">
+        <div class="card-label">Git</div>
+        <div class="card-title">Git without<br>the <span class="highlight-pink">guilt</span>.</div>
+        <div class="card-desc">Commit, push, branch, undo — without wondering if you just nuked the repo.</div>
+        <div class="cmd-grid">
+          <span class="cmd-pill">git save</span>
+          <span class="cmd-pill">git undo</span>
+          <span class="cmd-pill">git switch</span>
+          <span class="cmd-pill">git new branch</span>
+          <span class="cmd-pill">git discard</span>
+          <span class="cmd-pill">git stash</span>
+        </div>
+      </div>
+
+      <!-- Card 4: Navigation -->
+      <div class="bento-card card-accent-teal">
+        <div class="card-label">Navigation</div>
+        <div class="card-title">Navigate like<br>you <span class="highlight-teal">think</span>.</div>
+        <div class="card-desc">Because "cd ../../../somewhere" is not a thought anyone has ever had naturally.</div>
+        <div class="cmd-grid">
+          <span class="cmd-pill">go to ~/Desktop</span>
+          <span class="cmd-pill">go back</span>
+          <span class="cmd-pill">go home</span>
+          <span class="cmd-pill">show files</span>
+          <span class="cmd-pill">where am i</span>
+          <span class="cmd-pill">open file.txt</span>
+        </div>
+      </div>
+
+      <!-- Card 5: Tabs -->
+      <div class="bento-card card-accent-orange">
+        <div class="card-label">Tabs &amp; Splits</div>
+        <div class="card-title">Tabs that make <span class="highlight-orange">sense</span>.</div>
+        <div class="card-desc">Open, split, rename, close. Your terminal windows, managed like a civilized human.</div>
+        <div class="cmd-grid">
+          <span class="cmd-pill">tab new</span>
+          <span class="cmd-pill">tab split right</span>
+          <span class="cmd-pill">tab split down</span>
+          <span class="cmd-pill">tab rename</span>
+          <span class="cmd-pill">tab close</span>
+        </div>
+      </div>
+
+      <!-- Card 6: NPM — full width terminal showcase -->
+      <div class="bento-card full" style="display: flex; gap: 40px; align-items: center;">
+        <div style="flex: 1;">
+          <div class="card-label">npm</div>
+          <div class="card-title">npm, minus the<br><span class="highlight-orange">ceremony</span>.</div>
+          <div class="card-desc">All your npm workflows, none of the "wait what's the flag for dev dependencies again?" moments.</div>
+        </div>
+        <div class="terminal" style="flex: 1.2; margin-top: 0;">
+          <span class="prompt">~/app</span> <span class="cmd">npm dev</span><br>
+          <span class="output">  &#8594; Running</span> <span class="pink">npm run dev</span><span class="output">...</span><br>
+          <br>
+          <span class="prompt">~/app</span> <span class="cmd">npm install axios</span><br>
+          <span class="output">  &#8594; Installing</span> <span class="highlight-teal">axios</span><span class="output">...</span><br>
+          <span class="success">  &#10003;</span> <span class="output">Installed</span> <span class="highlight-teal">axios</span>
+        </div>
+      </div>
+
+      <!-- Card 7: Ghostty -->
+      <div class="bento-card wide" style="text-align: center; padding: 48px 32px;">
+        <div class="card-label">Built for</div>
+        <div class="card-title" style="font-size: 36px;">Ghostty</div>
+        <div class="card-desc" style="max-width: 400px; margin: 0 auto;">The terminal emulator that's fast enough to deserve a shell extension that's this fun.</div>
+      </div>
+
+      <!-- Card 8: Claude -->
+      <div class="bento-card" style="display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <div class="card-label">AI-native</div>
+          <div class="card-title">Just type <span class="highlight-teal">claude</span>.</div>
+          <div class="card-desc">Claude Code, one word away. Because the future shouldn't need a man page either.</div>
+        </div>
+        <div class="terminal" style="margin-top: 16px; padding: 14px;">
+          <span class="prompt">~</span> <span class="cmd">claude</span><br>
+          <span class="output">  &#8594; Launching</span> <span class="pink">Claude Code</span><span class="output">...</span>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>made with questionable amounts of coffee by <a href="https://github.com/iprithvitharun">@iprithvitharun</a></p>
+    </footer>
+
+  </div>
+
+  <script>
+    function copyInstall(el) {
+      navigator.clipboard.writeText('brew install iprithvitharun/pmux/pmux');
+      const hint = el.querySelector('.copy-hint');
+      const msg = el.querySelector('.copied-msg');
+      hint.style.display = 'none';
+      msg.style.display = 'inline';
+      setTimeout(() => {
+        hint.style.display = 'inline';
+        msg.style.display = 'none';
+      }, 2000);
+    }
+  </script>
+</body>
+</html>

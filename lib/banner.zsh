@@ -4,10 +4,10 @@
 # ── System info helpers ──────────────────────────────────────
 __pmux_greeting() {
   local hour=$(date +%H)
-  if   (( hour >= 5  && hour < 12 )); then print -n "Good morning"
-  elif (( hour >= 12 && hour < 17 )); then print -n "Good afternoon"
-  elif (( hour >= 17 && hour < 21 )); then print -n "Good evening"
-  else                                     print -n "Good night"
+  if   (( hour >= 5  && hour < 12 )); then print -n "Early start, let's get it"
+  elif (( hour >= 12 && hour < 17 )); then print -n "Afternoon locked in"
+  elif (( hour >= 17 && hour < 21 )); then print -n "Evening push, let's go"
+  else                                     print -n "Burning midnight oil"
   fi
 }
 

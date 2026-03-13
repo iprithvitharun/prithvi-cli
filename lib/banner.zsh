@@ -33,7 +33,9 @@ __pmux_uptime_short() {
 
 __pmux_next_event() {
   local evt
-  evt=$(osascript -e '
+  # Run osascript in background with 3s timeout so it can't block startup
+  evt=$(
+    osascript -e '
 tell application "Calendar"
     set now to current date
     set endOfDay to now + (24 * 60 * 60 - (hours of now * 3600 + minutes of now * 60 + seconds of now))
@@ -55,7 +57,13 @@ tell application "Calendar"
     end if
     return ""
 end tell
-' 2>/dev/null)
+' 2>/dev/null &
+    local pid=$!
+    { sleep 3; kill $pid 2>/dev/null; } &
+    local watchdog=$!
+    wait $pid 2>/dev/null
+    kill $watchdog 2>/dev/null
+  )
   if [[ -n "$evt" ]]; then
     # Truncate long event names: "Long Event Name @ 14:30" → "Long Event Na… @ 14:30"
     local time_part="${evt##* @ }"
